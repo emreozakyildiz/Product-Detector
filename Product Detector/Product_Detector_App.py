@@ -7,11 +7,13 @@ from selenium.webdriver.chrome.options import Options
 import os
 import time
 import re
+import uuid
 from bs4 import BeautifulSoup
 import mysql.connector
 import secrets
 from mysql.connector import Error
 from datetime import timedelta
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
@@ -26,7 +28,8 @@ app.config.update(
     SESSION_COOKIE_NAME='product_detector_session',
     SESSION_TYPE='filesystem',
     SESSION_FILE_DIR='./flask_session',
-    SESSION_FILE_THRESHOLD=500
+    DATA_DIR = './data',
+    MAX_CONTENT_LENGTH=16 * 1024 * 1024
 )
 
 Session(app)
@@ -34,13 +37,14 @@ Session(app)
 db_config = {
     'host': '127.0.0.1',
     'user': 'root',
-    'password': '',
+    'password': 'anan123',
     'database': 'product_detecting',
     'autocommit': False,
-    'pool_name': 'product_pool',
-    'pool_size': 5,
-    'pool_reset_session': True
 }
+
+os.makedirs(app.config['DATA_DIR'], exist_ok=True)
+os.makedirs(os.path.join(app.config['DATA_DIR'], 'pages'), exist_ok=True)
+os.makedirs(os.path.join(app.config['DATA_DIR'], 'products'), exist_ok=True)
 
 CURRENCY_SYMBOLS = {"$", "€", "£", "¥", "₺"}
 CURRENCY_CODES = {"USD", "EUR", "GBP", "JPY", "TRY", "TL"}
@@ -53,6 +57,12 @@ def create_db_connection():
     except Error as e:
         print(f"Database connection failed: {e}")
         return None
+
+def save_to_file(content, directory, filename):
+    path = os.path.join(app.config['DATA_DIR'], directory, filename)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    return path
 
 def contains_price_canceled(text):
     text = text.strip()
@@ -138,26 +148,31 @@ def index():
             html_content = fetch_page_with_js(url)
             products = find_minimal_product_containers(BeautifulSoup(html_content, "html.parser"))
             
+            # Generate unique IDs for this session
+            session_id = str(uuid.uuid4())
             session.clear()
             session.permanent = True
+            session['session_id'] = session_id
             session['url'] = url
             session['products_count'] = len(products)
             
-            os.makedirs('temp_data', exist_ok=True)
+            # Save page content to file
+            page_filename = f"{session_id}_page.html"
+            page_path = save_to_file(html_content, 'pages', page_filename)
+            session['page_path'] = page_path
             
-            with open(f'temp_data/{session.sid}_content.html', 'w', encoding='utf-8') as f:
-                f.write(html_content)
-            
-            products_html = []
+            # Save products to files and store paths
+            product_paths = []
             for i, product in enumerate(products):
-                product_html = str(product)
-                products_html.append(product_html)
-                with open(f'temp_data/{session.sid}_product_{i}.html', 'w', encoding='utf-8') as f:
-                    f.write(product_html)
+                product_filename = f"{session_id}_product_{i}.html"
+                product_path = save_to_file(str(product), 'products', product_filename)
+                product_paths.append(product_path)
             
+            session['product_paths'] = product_paths
             flash("Products fetched successfully!", "success")
+
             return render_template("index.html", 
-                                products=products_html,
+                                products=[str(p) for p in products],
                                 url=url)
             
         except Exception as e:
@@ -172,13 +187,10 @@ def save_labels():
         return redirect(url_for('index'))
 
     try:
-        with open(f'temp_data/{session.sid}_content.html', 'r', encoding='utf-8') as f:
-            html_content = f.read()
-
-        products = []
-        for i in range(session['products_count']):
-            with open(f'temp_data/{session.sid}_product_{i}.html', 'r', encoding='utf-8') as f:
-                products.append(f.read())
+        required_keys = ['session_id', 'url', 'page_path', 'product_paths']
+        if not all(key in session for key in required_keys):
+            flash("Session data incomplete. Please fetch again.", "error")
+            return redirect(url_for('index'))
 
         labels = [int(request.form.get(f"label_{i+1}", 0)) for i in range(session['products_count'])]
 
@@ -192,67 +204,46 @@ def save_labels():
             cursor = conn.cursor()
             
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS products (
+                CREATE TABLE IF NOT EXISTS train_data (
                     id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(36) NOT NULL,
                     url VARCHAR(255) NOT NULL,
-                    html_content LONGTEXT NOT NULL,
-                    product_detected TEXT,
+                    page_path TEXT NOT NULL,
+                    product_path TEXT NOT NULL,
                     label INT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX (session_id)
                 )
             """)
             
-            insert_query = """
-                INSERT INTO train_data 
-                (url, html_content, product_detected, label) 
-                VALUES (%s, %s, %s, %s)
-            """
-            
-            for product, label in zip(products, labels):
-                cursor.execute(insert_query, 
-                             (session['url'], html_content, product, label))
-                print(f"Inserted product with label {label}")
+            for i, (product_path, label) in enumerate(zip(session['product_paths'], labels)):
+                cursor.execute("""
+                    INSERT INTO train_data 
+                    (session_id, url, page_path, product_path, label) 
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (session['session_id'], session['url'], 
+                     session['page_path'], product_path, label))
             
             conn.commit()
-            print("Transaction committed successfully")
             flash("Labels saved successfully!", "success")
+            print(f"Saved {len(labels)} products to database")
 
-        except Error as e:
-            if conn:
-                conn.rollback()
-            print(f"Database error: {e}")
-            flash(f"Database error: {str(e)}", "error")
-            return redirect(url_for('index'))
-            
         except Exception as e:
             if conn:
                 conn.rollback()
             print(f"Unexpected error: {e}")
             flash(f"Error saving labels: {str(e)}", "error")
-            return redirect(url_for('index'))
-            
+            return redirect(url_for('index'))   
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
 
-        for i in range(session['products_count']):
-            try:
-                os.remove(f'temp_data/{session.sid}_product_{i}.html')
-            except FileNotFoundError:
-                pass
-                
-        try:
-            os.remove(f'temp_data/{session.sid}_content.html')
-        except FileNotFoundError:
-            pass
-
-        session.clear()
+        session.pop('products_count', None)
         return redirect(url_for('index'))
-
+    
     except Exception as e:
-        print(f"Overall error: {e}")
         flash(f"Error processing labels: {str(e)}", "error")
         return redirect(url_for('index'))
 
@@ -271,8 +262,9 @@ def db_test():
     return "Database connection failed"
 
 if __name__ == "__main__":
-    os.makedirs('flask_session', exist_ok=True)
-    os.makedirs('temp_data', exist_ok=True)
+    os.makedirs(app.config['DATA_DIR'], exist_ok=True)
+    os.makedirs(os.path.join(app.config['DATA_DIR'], 'pages'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['DATA_DIR'], 'products'), exist_ok=True)
     
     test_conn = create_db_connection()
     if test_conn:

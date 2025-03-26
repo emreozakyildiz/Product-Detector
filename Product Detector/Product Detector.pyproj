@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5058de78-4aa2-4fd8-94cf-4633e47ec4c0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Product_Detector_App.py</StartupFile>
+    <StartupFile>Product_Detector_Model.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product_Detector_App.py" />
+    <Compile Include="Product_Detector_Model.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="chromedriver.exe" />

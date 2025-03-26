@@ -4,6 +4,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 import os
 import time
 import re
@@ -127,7 +131,7 @@ def find_minimal_product_containers(soup):
             minimal_products.append(candidate)
     return minimal_products
 
-def fetch_page_with_js(url):
+def fetch_page_with_js_a101(url):
     chrome_options = Options()
     #chrome_options.add_argument("--headless")  # run in headless mode
     service = Service("chromedriver.exe")
@@ -139,6 +143,40 @@ def fetch_page_with_js(url):
     html = driver.page_source
     driver.quit()
     return html
+
+def fetch_page_with_js(url):
+    chrome_options = Options()
+    # chrome_options.add_argument("--headless")  # Optional: run in headless mode
+    service = Service("chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    driver.get(url)
+    time.sleep(5)  # Allow page to load initially
+
+    # Slowly scroll down the page
+    scroll_pause_time = 2  # Adjust the pause time (in seconds) between scrolls
+    last_position = driver.execute_script("return window.pageYOffset;")
+
+    while True:
+        # Scroll down by a small amount
+        driver.execute_script("window.scrollBy(0, 300);")
+        time.sleep(scroll_pause_time)
+
+        scroll_pause_time+=1
+
+        # Get the current scroll position
+        new_position = driver.execute_script("return window.pageYOffset;")
+        
+        # Check if we are at the bottom or no more scrollable content
+        if new_position == last_position or scroll_pause_time==10:
+            break
+        last_position = new_position
+
+    # Get the fully loaded HTML
+    html = driver.page_source
+    driver.quit()
+    return html
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():

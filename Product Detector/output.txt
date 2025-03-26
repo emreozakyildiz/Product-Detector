@@ -1,0 +1,63 @@
+﻿<div class="swiper-slide desktop:!w-[165px] mobile:!w-[154px] swiper-slide-next"
+style="margin-right: 10px;">
+	<div style="container-type: inline-size;">
+		<div class="flex product-container bg-white flex-col relative w-full border border-brand-gray-skeleton rounded-2xl">
+			<a rel="bookmark" href="/elektronik/apple-iphone-16-pro-256-gb-cep-telefonu-beyaz-titanyum_p-26055082">
+				<div class="flex flex-col relative pt-[6px] w-full mb-1">
+					<div class="product-badge relative aspect-[252/48.18] m-auto flex justify-center mb-1">
+						<div class="select-none relative w-full h-full">
+							<div class="transition-opacity duration-300  ">
+								<img draggable="false" class="scale-x-100" src="https://cdn2.a101.com.tr/dbmk89vnr/CALL/Image/get/aldin-aldin-ozel_256x256.png"
+								width="147" height="17" loading="lazy" fetchpriority="auto" style="width: 100%;">
+							</div>
+						</div>
+					</div>
+					<div class="relative">
+						<div>
+							<div class="absolute mobile:top-0 laptop:top-0 left-0 z-[1]">
+							</div>
+						</div>
+						<div class="flex w-full cursor-pointer aspect-square h-auto opacity-100">
+							<div class="select-none relative w-full h-full">
+								<div class="transition-opacity duration-300  w-full h-full overflow-hidden">
+									<img draggable="false" class="scale-x-100 h-full" src="https://f-a101-l.mncdn.com/mnresize/200/200/livephotos/8/26055082BEYAZTITANYUM/1.png"
+									width="147" height="147" loading="eager" fetchpriority="high" style="width: 100%; object-fit: contain;">
+								</div>
+							</div>
+							<noscript>
+							</noscript>
+						</div>
+						<div class="absolute left-0 bottom-0 flex-col">
+						</div>
+						<span class="absolute text-center left-0 bottom-0 leading-[12px] p-1 rounded-[6px] max-w-[60%] text-[10px] font-semibold"
+						style="color: rgb(255, 255, 255); background-color: rgb(118, 58, 199); border: 1px solid rgb(118, 58, 199);">
+							Hadi ile Peşin Fiyatına 3 Taksit
+						</span>
+						<div class="absolute right-0 flex bottom-0 flex-col">
+						</div>
+					</div>
+					<header>
+						<hgroup class="mt-2 h-[30px] ">
+							<h3 title="Apple iPhone 16 Pro 256 GB Cep Telefonu Beyaz Titanyum" class="text-xs font-medium leading-4 tablet:mb-3 mobile:mb-1 cursor-pointer tablet:line-clamp-2 mobile:line-clamp-2">
+								Apple iPhone 16 Pro 256 GB Cep Telefonu Beyaz Titanyum
+							</h3>
+						</hgroup>
+					</header>
+				</div>
+				<section class="mt-2  flex flex-col justify-end mb-2 h-[68px] ">
+					<span class="text-xs text-[#333] h-[17px] line-through cursor-pointer"
+					style="line-height: initial;">
+					</span>
+					<span class="text-base text-[#EA242A]  not-italic font-medium leading-normal cursor-pointer">
+						₺82.999,00
+					</span>
+				</section>
+			</a>
+			<div class="left-3 right-3 product-add-button hidden">
+				<button id="AddToCartBtn_26055082001" class="bg-brand-blue-primary  rounded-full text-base  p-1 text-sm text-center w-full text-white undefined">
+					Sepete Ekle
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

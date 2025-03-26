@@ -73,6 +73,9 @@ print("Model training complete.")
 model_filename = 'random_forest_product_model.pkl'
 joblib.dump(model, model_filename)
 print(f"Model saved as {model_filename}")
+vectorizer_filename = 'tfidf_vectorizer.pkl'
+joblib.dump(vectorizer, vectorizer_filename)
+print(f"Vectorizer saved as {vectorizer_filename}")
 
 y_pred = model.predict(X_test)
 print(f"Accuracy: {accuracy_score(y_test, y_pred)}")

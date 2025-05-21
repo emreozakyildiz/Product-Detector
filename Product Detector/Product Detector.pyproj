@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5058de78-4aa2-4fd8-94cf-4633e47ec4c0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Product_Detector_Model.py</StartupFile>
+    <StartupFile>TestOutBound_2.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product_Detector_App.py" />
-    <Compile Include="Product_Detector_Model.py" />
+    <Compile Include="Product_Detector_Model - LinearSVC.py" />
+    <Compile Include="Product_Detector_Model - XGBoost.py" />
+    <Compile Include="Product_Detector_Model - AdaBoost.py" />
+    <Compile Include="Product_Detector_Model - RandomForest.py" />
+    <Compile Include="Product_Detector_Test.py" />
+    <Compile Include="TestOutBound_2.py" />
+    <Compile Include="TestOutBound.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="chromedriver.exe" />
@@ -37,6 +43,7 @@
     <Content Include="iso-4217.xml" />
     <Content Include="input.txt" />
     <Content Include="output.txt" />
+    <Content Include="seeds.txt" />
     <Content Include="templates\index.html" />
   </ItemGroup>
   <ItemGroup>

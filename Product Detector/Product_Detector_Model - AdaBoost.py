@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 import scipy.sparse as sp
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from tqdm import tqdm
 import joblib
@@ -66,11 +66,11 @@ X_product = vectorizer.transform(df['product_text'])
 X_combined = sp.hstack([X_page, X_product])
 
 X_train, X_test, y_train, y_test = train_test_split(X_combined, df['label'], test_size=0.2, random_state=42)
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+model = AdaBoostClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 print("Model training complete.")
 
-model_filename = 'random_forest_product_model.pkl'
+model_filename = 'adaboost_product_model.pkl'
 joblib.dump(model, model_filename)
 print(f"Model saved as {model_filename}")
 vectorizer_filename = 'tfidf_vectorizer.pkl'

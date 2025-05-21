@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#Test Data
+Product Detector/data/test/
+Product Detector/data/test_results/
+Product Detector/data/test_results2/
+Product Detector/data/test2/
+
 # User-specific files
 *.rsuser
 *.suo
